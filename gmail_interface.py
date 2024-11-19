@@ -9,10 +9,8 @@ from googleapiclient.discovery import build
 
 
 class GmailInterface:
-    def __init__(self, sender, sent_time):
+    def __init__(self):
         self._scopes = ["https://www.googleapis.com/auth/gmail.readonly"]
-        self._sender = sender
-        self._sent_time = sent_time
         self._authenticate()
         self._initialize()
 
@@ -44,23 +42,16 @@ class GmailInterface:
         service = build("gmail", "v1", credentials=self._credentials)
         self._message_service = service.users().messages()
 
-    def get_url(self):
+    def get_message_by_sender(self, sender, sent_time, max_attempts=5):
         id_ = None
-        for attempt in range(1, 11):
-            messages = self._get_messages(numberOfMessages=attempt*10)
-            id_ = self._find_message_by_sender(messages)
+        for attempt in range(max_attempts):
+            messages = self._get_messages(num_messages=5*(attempt+1))
+            id_ = self._parse_messages(messages, sender, sent_time)
             if id_:
                 break
         else:
             raise Exception(f"Message not found in {attempt} attempts!")
-        message = self._get_content(id_)
-        return self._extract_url(message)
-
-    def _extract_url(self, message):
-        match = re.search(r"(?:Sign In\s*\( )(.*)(?= \))", message)
-        if match is None or len(match.groups()) < 1:
-            raise Exception("URL not found!")
-        return match.group(1)
+        #message = self._get_content(id_)
 
     def _get_messages(self, num_messages=10):
         res = self._message_service.list(
@@ -69,7 +60,7 @@ class GmailInterface:
         ).execute()
         return res.get("messages", [])
 
-    def _find_message_by_sender(self, messages):
+    def _parse_messages(self, messages, sender, sent_time):
         for message in messages:
             id_ = message["id"]
             data = self._message_service.get(
@@ -88,11 +79,11 @@ class GmailInterface:
                     try:
                         time = datetime.strptime(
                             value,
-                            "%a, %d %b %Y %H:%M:%S %z (%Z)",
+                            "%a, %d %b %Y %H:%M:%S %z",
                         )
                     except ValueError:
                         time = None
-            if name == self._sender and time >= self._sent_time:
+            if name == sender and time >= sent_time:
                 return message["id"]
         return None
 
