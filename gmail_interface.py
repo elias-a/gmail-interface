@@ -48,10 +48,10 @@ class GmailInterface:
             messages = self._get_messages(num_messages=5*(attempt+1))
             id_ = self._parse_messages(messages, sender, sent_time)
             if id_:
-                break
+                content = self._get_content(id_)
+                return content
         else:
             raise Exception(f"Message not found in {attempt} attempts!")
-        #message = self._get_content(id_)
 
     def _get_messages(self, num_messages=10):
         res = self._message_service.list(
@@ -93,7 +93,5 @@ class GmailInterface:
             id=id_,
             format=format,
         ).execute()
-        base64_data = ""
-        for part in message["payload"]["parts"]:
-            base64_data += part["body"]["data"]
-        return urlsafe_b64decode(base64_data).decode()
+        data = "".join(p["body"]["data"] for p in message["payload"]["parts"])
+        return urlsafe_b64decode(data).decode()
