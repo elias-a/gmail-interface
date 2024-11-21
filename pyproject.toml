@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gmail-interface"
+version = "1.0.0"
+authors = [
+  {name = "Elias Alstead", email = "elias.alstead@gmail.com"},
+]
+description = "Class to manage Gmail interactions"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["google", "google_auth_oauthlib", "google-api-python-client"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+]

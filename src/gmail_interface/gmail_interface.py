@@ -1,5 +1,4 @@
 import os
-import re
 from datetime import datetime
 from base64 import urlsafe_b64decode
 from google.auth.transport.requests import Request
