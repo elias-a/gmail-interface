@@ -92,5 +92,5 @@ class GmailInterface:
             id=id_,
             format=format,
         ).execute()
-        data = "".join(p["body"]["data"] for p in message["payload"]["parts"])
-        return urlsafe_b64decode(data).decode()
+        content, *_ = message["payload"]["parts"]
+        return urlsafe_b64decode(content["body"]["data"]).decode().strip()

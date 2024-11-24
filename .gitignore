@@ -3,5 +3,6 @@ __pycache__
 build
 .DS_Store
 venv
+*.env
 token.json
 credentials.json
