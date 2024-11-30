@@ -92,5 +92,6 @@ class GmailInterface:
             id=id_,
             format=format,
         ).execute()
-        content, *_ = message["payload"]["parts"]
+        payload = message["payload"]
+        content = payload["parts"][0] if "parts" in payload.keys() else payload
         return urlsafe_b64decode(content["body"]["data"]).decode().strip()
